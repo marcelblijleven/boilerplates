@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Push docker image to registry
+        env:
+          CONTAINER_REGISTRY: docker.pkg.github.com
+          REGISTRY_USERNAME: marcelblijleven
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_NAME: docker.pkg.github.com/marcelblijleven/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }}:${{ github.ref }} -f Dockerfile .
+          echo ${{ env.REGISTRY_PASSWORD }} | docker login ${{ env.CONTAINER_REGISTRY }} --username ${{ env.REGISTRY_USERNAME }} --password-stdin
+          docker push ${{ env.IMAGE_NAME }}:${{ github.ref }}
