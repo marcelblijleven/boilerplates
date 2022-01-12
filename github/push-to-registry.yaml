@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Store current tag in GITHUB_ENV
+        run: echo "CURRENT_TAG=$(git describe --tags)" >> $GITHUB_ENV
       - name: Push docker image to registry
         env:
           CONTAINER_REGISTRY: docker.pkg.github.com
@@ -17,6 +19,6 @@ jobs:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_NAME: docker.pkg.github.com/marcelblijleven/${{ github.event.repository.name }}/${{ github.event.repository.name }}
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.ref }} -f Dockerfile .
+          docker build -t ${{ env.IMAGE_NAME }}:${{ env.CURRENT_TAG }} -f Dockerfile .
           echo ${{ env.REGISTRY_PASSWORD }} | docker login ${{ env.CONTAINER_REGISTRY }} --username ${{ env.REGISTRY_USERNAME }} --password-stdin
-          docker push ${{ env.IMAGE_NAME }}:${{ github.ref }}
+          docker push ${{ env.IMAGE_NAME }}:${{ env.CURRENT_TAG }}
