@@ -23,6 +23,6 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 COPY --from=builder /app/gs .
 
-EXPOSE 3000
+EXPOSE 8080  # remove this when you're not running any HTTP server 
 
 CMD ["./main"]  # or ENTRYPOINT for e.g. cli tools
